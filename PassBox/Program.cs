@@ -26,16 +26,16 @@ namespace PassBox
 
             var optionSet = new OptionSet
             {
-                { "f|format=", strings.Format, v => format = v },
-                { "r|nonrepeat", strings.NonRepeat, v => nonRepeat = v != null },
-                { "n|name=", strings.Name, v => name = v },
-                { "u|username=", strings.UserName, v => userName = v },
-                { "e|email=", strings.Email, v => email = v },
-                { "t|defaultemail=", strings.DefaultEmail, v => defaultEmail = v },
-                { "g|get=", strings.Get, v => getByName = v },
-                { "d|delete=", strings.Delete, v => deleteByName = v },
-                { "v|value=", strings.Value, v => value = v },
-                { "h|?|help", strings.Help, v => showHelp = v != null  },
+                { "f|format=", Strings.Format, v => format = v },
+                { "r|nonrepeat", Strings.NonRepeat, v => nonRepeat = v != null },
+                { "n|name=", Strings.Name, v => name = v },
+                { "u|username=", Strings.UserName, v => userName = v },
+                { "e|email=", Strings.Email, v => email = v },
+                { "t|defaultemail=", Strings.DefaultEmail, v => defaultEmail = v },
+                { "g|get=", Strings.Get, v => getByName = v },
+                { "d|delete=", Strings.Delete, v => deleteByName = v },
+                { "v|value=", Strings.Value, v => value = v },
+                { "h|?|help", Strings.Help, v => showHelp = v != null  },
             };
 
             List<string> extra;
@@ -45,7 +45,7 @@ namespace PassBox
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{strings.Error}: {ex.Message}");
+                Console.WriteLine($"{Strings.Error}: {ex.Message}");
                 ShowHelp(optionSet);
                 return;
             }
@@ -60,7 +60,7 @@ namespace PassBox
             {
                 Settings.Default.DefaultEmail = defaultEmail;
                 Settings.Default.Save();
-                Console.WriteLine(string.Format(strings.SetDefaultEmail, defaultEmail));
+                Console.WriteLine(string.Format(Strings.SetDefaultEmail, defaultEmail));
                 return;
             }
 
@@ -72,7 +72,7 @@ namespace PassBox
                 if (exactMatchedPassword != null)
                 {
                     Clipboard.SetText(exactMatchedPassword.Value);
-                    Console.WriteLine(string.Format(strings.CopiedToClipboard, exactMatchedPassword.Name));
+                    Console.WriteLine(string.Format(Strings.CopiedToClipboard, exactMatchedPassword.Name));
                     return;
                 }
                 var matchedPasswords = passwords.Where(w => w.Name.Contains(getByName)).ToArray();
@@ -84,17 +84,17 @@ namespace PassBox
                         Console.WriteLine($"{i}. {password.Name} {password.Email}");
                     }
                     Console.WriteLine("--------------------");
-                    Console.WriteLine(strings.SelectToCopy);
+                    Console.WriteLine(Strings.SelectToCopy);
                     if (int.TryParse(Console.ReadLine(), out var index) && index < passwords.Length)
                     {
                         var password = matchedPasswords[index];
                         Clipboard.SetText(password.Value);
-                        Console.WriteLine(string.Format(strings.CopiedToClipboard, password.Name));
+                        Console.WriteLine(string.Format(Strings.CopiedToClipboard, password.Name));
                     }
                 }
                 else
                 {
-                    Console.WriteLine(strings.NotFound);
+                    Console.WriteLine(Strings.NotFound);
                 }
                 return;
             }
@@ -103,9 +103,9 @@ namespace PassBox
             {
                 if (IO.DeletePassword(deleteByName))
                 {
-                    Console.WriteLine(string.Format(strings.DeletedByName, deleteByName));
+                    Console.WriteLine(string.Format(Strings.DeletedByName, deleteByName));
                 }
-                else Console.WriteLine(string.Format(strings.NotFoundByName, deleteByName));
+                else Console.WriteLine(string.Format(Strings.NotFoundByName, deleteByName));
                 return;
             }
 
@@ -115,7 +115,7 @@ namespace PassBox
             {
                 if (passwords.Any(a => a.Name == name))
                 {
-                    Console.WriteLine(strings.AlreadyExists);
+                    Console.WriteLine(Strings.AlreadyExists);
                     return;
                 }
 
@@ -132,14 +132,14 @@ namespace PassBox
                 return;
             }
 
-            Console.WriteLine(strings.ErrorOneOrMoreParameters);
+            Console.WriteLine(Strings.ErrorOneOrMoreParameters);
         }
 
         static void ListPasswords(Password[] passwords, out bool exit)
         {
             if (passwords.Length == 0)
             {
-                Console.WriteLine(strings.NotFoundByAnyName);
+                Console.WriteLine(Strings.NotFoundByAnyName);
                 exit = false;
             }
             else if (passwords.Length == 1)
@@ -155,7 +155,7 @@ namespace PassBox
                     Console.WriteLine($"{i}. {password.Name} {password.Email}");
                 }
                 Console.WriteLine("----------");
-                Console.WriteLine(strings.SelectToCopy);
+                Console.WriteLine(Strings.SelectToCopy);
                 if (int.TryParse(Console.ReadLine(), out var index) && index < passwords.Length)
                     Clipboard.SetText(passwords[index].Value);
                 exit = true;
@@ -164,7 +164,7 @@ namespace PassBox
 
         static void ShowHelp(OptionSet optionSet)
         {
-            Console.WriteLine(strings.Help);
+            Console.WriteLine(Strings.Help);
             optionSet.WriteOptionDescriptions(Console.Out);
         }
     }
