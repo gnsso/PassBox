@@ -26,16 +26,16 @@ namespace PassBox
 
             var optionSet = new OptionSet
             {
-                { "f|format=", "Parola formati (kucuk harf: 'l', buyuk harf: 'L', rakam: 'd', noktalama: 'p') örn: 'dddlllpL'", v => format = v },
-                { "r|nonrepeat", "Parola icindeki art arda gelen ayni tip karakterlerin tekrarlamamasi", v => nonRepeat = v != null },
-                { "n|name=", "Parolayla iliskilendirilecek isim", v => name = v },
-                { "u|username=", "Parolaya ait kullanici adi", v => userName = v },
-                { "e|email=", "Parolaya ait email", v => email = v },
-                { "t|defaultemail=", "Parola uretilirken kullanilacak ontanimli email", v => defaultEmail = v },
-                { "g|get=", "Parolayla iliskilendirilmis isime göre bul", v => getByName = v },
-                { "d|delete=", "Parolayla iliskilendirilmis isimle sil", v => deleteByName = v },
-                { "v|value=", "Yeni parola uretmeden, var olan parolayi kaydet", v => value = v },
-                { "h|?|help", "Yardım", v => showHelp = v != null  },
+                { "f|format=", strings.Format, v => format = v },
+                { "r|nonrepeat", strings.NonRepeat, v => nonRepeat = v != null },
+                { "n|name=", strings.Name, v => name = v },
+                { "u|username=", strings.UserName, v => userName = v },
+                { "e|email=", strings.Email, v => email = v },
+                { "t|defaultemail=", strings.DefaultEmail, v => defaultEmail = v },
+                { "g|get=", strings.Get, v => getByName = v },
+                { "d|delete=", strings.Delete, v => deleteByName = v },
+                { "v|value=", strings.Value, v => value = v },
+                { "h|?|help", strings.Help, v => showHelp = v != null  },
             };
 
             List<string> extra;
@@ -45,7 +45,7 @@ namespace PassBox
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Hata: {ex.Message}");
+                Console.WriteLine($"{strings.Error}: {ex.Message}");
                 ShowHelp(optionSet);
                 return;
             }
@@ -60,7 +60,7 @@ namespace PassBox
             {
                 Settings.Default.DefaultEmail = defaultEmail;
                 Settings.Default.Save();
-                Console.WriteLine($"Parola uretilirken kullanilacak email '{defaultEmail}' olarak ayarlandi");
+                Console.WriteLine(string.Format(strings.SetDefaultEmail, defaultEmail));
                 return;
             }
 
@@ -72,7 +72,7 @@ namespace PassBox
                 if (exactMatchedPassword != null)
                 {
                     Clipboard.SetText(exactMatchedPassword.Value);
-                    Console.WriteLine($"'{exactMatchedPassword.Name}' ile iliskilendirilmis parola panoya kopyalandi");
+                    Console.WriteLine(string.Format(strings.CopiedToClipboard, exactMatchedPassword.Name));
                     return;
                 }
                 var matchedPasswords = passwords.Where(w => w.Name.Contains(getByName)).ToArray();
@@ -84,17 +84,17 @@ namespace PassBox
                         Console.WriteLine($"{i}. {password.Name} {password.Email}");
                     }
                     Console.WriteLine("--------------------");
-                    Console.WriteLine("Parolayi panoya kopyalamak icin sec: ");
+                    Console.WriteLine(strings.SelectToCopy);
                     if (int.TryParse(Console.ReadLine(), out var index) && index < passwords.Length)
                     {
                         var password = matchedPasswords[index];
                         Clipboard.SetText(password.Value);
-                        Console.WriteLine($"'{password.Name}' ile iliskilendirilmis parola panoya kopyalandi");
+                        Console.WriteLine(string.Format(strings.CopiedToClipboard, password.Name));
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Parola bulunamadi");
+                    Console.WriteLine(strings.NotFound);
                 }
                 return;
             }
@@ -103,9 +103,9 @@ namespace PassBox
             {
                 if (IO.DeletePassword(deleteByName))
                 {
-                    Console.WriteLine($"'{deleteByName}' ile iliskilendirlmis parola silindi");
+                    Console.WriteLine(string.Format(strings.DeletedByName, deleteByName));
                 }
-                else Console.WriteLine($"'{deleteByName}' ile iliskilendirlmis parola bulunamadi");
+                else Console.WriteLine(string.Format(strings.NotFoundByName, deleteByName));
                 return;
             }
 
@@ -115,7 +115,7 @@ namespace PassBox
             {
                 if (passwords.Any(a => a.Name == name))
                 {
-                    Console.WriteLine("Bu isim ile iliskilendirilmis parola zaten var. Farkli bir isim deneyin.");
+                    Console.WriteLine(strings.AlreadyExists);
                     return;
                 }
 
@@ -132,14 +132,14 @@ namespace PassBox
                 return;
             }
 
-            Console.WriteLine("Bir veya daha fazla parametre hatali. Yardim icin: 'passbox --help'");
+            Console.WriteLine(strings.ErrorOneOrMoreParameters);
         }
 
         static void ListPasswords(Password[] passwords, out bool exit)
         {
             if (passwords.Length == 0)
             {
-                Console.WriteLine("Bu isim ile iliskilendirilmis parola bulunamadi");
+                Console.WriteLine(strings.NotFoundByAnyName);
                 exit = false;
             }
             else if (passwords.Length == 1)
@@ -155,7 +155,7 @@ namespace PassBox
                     Console.WriteLine($"{i}. {password.Name} {password.Email}");
                 }
                 Console.WriteLine("----------");
-                Console.WriteLine("Parolayi panoya kopyalamak icin sec: ");
+                Console.WriteLine(strings.SelectToCopy);
                 if (int.TryParse(Console.ReadLine(), out var index) && index < passwords.Length)
                     Clipboard.SetText(passwords[index].Value);
                 exit = true;
@@ -164,7 +164,7 @@ namespace PassBox
 
         static void ShowHelp(OptionSet optionSet)
         {
-            Console.WriteLine("Yardim:");
+            Console.WriteLine(strings.Help);
             optionSet.WriteOptionDescriptions(Console.Out);
         }
     }
